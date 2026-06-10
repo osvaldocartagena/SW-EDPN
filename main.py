@@ -536,7 +536,7 @@ def main():
     parser.add_argument("--width", type=int, default=64)
     parser.add_argument("--depth", type=int, default=4)
     parser.add_argument("--positivity-weight", type=float, default=100.0)
-    parser.add_argument("--outdir", type=str, default="runs_swe_simple_ansatz")
+    parser.add_argument("--outdir", type=str, default="media-out")
     parser.add_argument("--no-plots", action="store_true")
     parser.add_argument("--T", type=float, default=None, help="Simulation time horizon")
     parser.add_argument("--animate", action="store_true", help="Generate an animated gif of the solution")
