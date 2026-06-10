@@ -19,10 +19,9 @@ from utils.topography import get_topography
 
 if TYPE_CHECKING:
     from model.sw_pinn import SW_PINN
-
-
+    
 def plot_training_history(history: list[dict[str, float]], case: Case, case_id: int, outdir: Path) -> Path:
-    fig_path = outdir / f"sw_pinn_ansatz_case_{case_id}_{case.name}_loss.png"
+    fig_path = outdir / f"{case.name}_loss.png"
 
     fig, ax = plt.subplots(figsize=(7.0, 4.0), layout="constrained")
     its = [row["it"] for row in history]
@@ -42,7 +41,7 @@ def plot_training_history(history: list[dict[str, float]], case: Case, case_id: 
 
 def plot_solution_snapshots(model: SW_PINN, outdir: Path, nx: int = 256) -> Path:
     case = model.case
-    fig_path = outdir / f"sw_pinn_ansatz_case_{model.case_id}_{case.name}_snapshots.png"
+    fig_path = outdir / f"{case.name}.png"
 
     x = torch.linspace(0.0, 1.0, nx, device=DEVICE, dtype=DTYPE).view(-1, 1)
     times = torch.linspace(0.0, case.T, 5, device=DEVICE, dtype=DTYPE)
@@ -136,7 +135,7 @@ def _bounds_with_padding(series: list, extra: list | None = None, min_pad: float
 
 def create_animation(model: SW_PINN, outdir: Path, nx: int = 256, frames: int = 50) -> Path:
     case = model.case
-    gif_path = outdir / f"sw_pinn_ansatz_case_{model.case_id}_{case.name}.gif"
+    gif_path = outdir / f"{case.name}.gif"
 
     x = torch.linspace(0.0, 1.0, nx, device=DEVICE, dtype=DTYPE).view(-1, 1)
     times = torch.linspace(0.0, case.T, frames, device=DEVICE, dtype=DTYPE)

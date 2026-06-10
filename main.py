@@ -19,8 +19,9 @@ La loss principal es solo el residual PDE.
 Hay una penalizacion opcional suave para evitar h <= 0.
 
 Uso:
-    python sw_pinn_simple_ansatz.py --case 0 --steps 20000
-    python sw_pinn_simple_ansatz.py --train-all --steps 12000
+    python main.py --case 0 --steps 20000
+    python main.py --train-all --steps 12000
+    python main.py --animate 
 """
 
 from __future__ import annotations

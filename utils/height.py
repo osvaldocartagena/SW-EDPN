@@ -18,4 +18,4 @@ def sine_height(x: torch.Tensor) -> torch.Tensor:
     return 1.0 + 0.05 * torch.sin(torch.pi * x)
 
 def one_height(x: torch.Tensor) -> torch.Tensor:
-    return 1.0 +0.0*x
+    return 1.0 + 0.0 * x

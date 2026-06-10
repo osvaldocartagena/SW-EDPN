@@ -17,13 +17,13 @@ class SW_PINN(nn.Module):
         h0, u0 = initial_condition(x, self.z_case, self.h_case, self.v_case)
 
         raw = self.net(x, t / self.case.T)
-        dh = raw[:, 0:1]
-        du = raw[:, 1:2]
+        nn_h = raw[:, 0:1]
+        nn_u = raw[:, 1:2]
 
         envelope = t * x * (1.0 - x)
 
-        h = h0 + envelope * dh
-        u = u0 + envelope * du
+        h = h0 + envelope * nn_h
+        u = u0 + envelope * nn_u
 
         return h, u
 
