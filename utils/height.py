@@ -6,6 +6,8 @@ def get_height(x: torch.Tensor, h_case: str) -> torch.Tensor:
             return sine_height(x)
         case "gauss":
             return gauss_height(x)
+        case "one":
+            return one_height(x)
         case _:
             raise ValueError(f"Altura inicial inválida: {h_case}")
         
@@ -14,3 +16,6 @@ def gauss_height(x: torch.Tensor) -> torch.Tensor:
 
 def sine_height(x: torch.Tensor) -> torch.Tensor:
     return 1.0 + 0.05 * torch.sin(torch.pi * x)
+
+def one_height(x: torch.Tensor) -> torch.Tensor:
+    return 1.0 +0.0*x

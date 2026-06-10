@@ -8,10 +8,10 @@ class Case:
 CASES = {
     0: Case("Zflat_Hsine_Vzero", 0.20),
     1: Case("Zflat_Hsine_Vsine", 0.20),
-    2: Case("flat_gaussian_bump", 0.15),
-    3: Case("quiet_flat", 0.20),
-    4: Case("slope_lake_at_rest", 0.15),
-    5: Case("bottom_bump_perturbation", 0.15),
+    2: Case("Zflat_Hgauss_Vzero", 0.25),
+    3: Case("Zflat_Hone_Vzero", 0.20),
+    4: Case("Zinclined_Hone_Vzero", 0.15),
+    5: Case("Zwavebreaker_Hgauss_Vzero", 0.25),
 }
 
 
