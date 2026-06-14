@@ -83,7 +83,7 @@ def plot_solution_snapshots(model: SW_PINN, outdir: Path, nx: int = 256) -> Path
 
 def plot_solution_maps(model: SW_PINN, outdir: Path, nx: int = 160, nt: int = 120) -> Path:
     case = model.case
-    fig_path = outdir / f"sw_pinn_ansatz_case_{model.case_id}_{case.name}_maps.png"
+    fig_path = outdir / f"{case.name}_maps.png"
 
     x_line = torch.linspace(0.0, 1.0, nx, device=DEVICE, dtype=DTYPE)
     t_line = torch.linspace(0.0, case.T, nt, device=DEVICE, dtype=DTYPE)
@@ -207,3 +207,26 @@ def make_plots(model: SW_PINN, history: list[dict[str, float]], outdir: Path, an
         paths.append(create_animation(model, outdir))
     model.train()
     return paths
+
+def plot_topography(z_case: str, outdir: Path, nx: int = 256) -> Path:
+    print(f"Plotting topography {z_case}")
+
+    fig_path = outdir / f"topography_{z_case}.png"
+
+    x = torch.linspace(0.0, 1.0, nx, device=DEVICE, dtype=DTYPE).view(-1, 1)
+
+    fig, ax = plt.subplots(figsize=(8.0, 8.0), sharex=True, layout="constrained")
+
+    with torch.no_grad():
+        z = get_topography(x, z_case).cpu().numpy().ravel()
+        x_np = x.cpu().numpy().ravel()
+        ax.plot(x_np, z, "k--", linewidth=1.0, label="z")
+
+    ax.set_ylabel("eta = h + z")
+    ax.set_xlabel("x")
+
+    fig.suptitle(f"z_case: {z_case}")
+    fig.savefig(fig_path, dpi=180)
+    plt.close(fig)
+
+    return fig_path
