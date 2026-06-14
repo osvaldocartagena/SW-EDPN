@@ -14,6 +14,9 @@ CASES = {
 
     4: Case("Zflat_Hgauss_Vgauss", 0.25),
     5: Case("Zwavebreaker_Hgauss_Vzero", 0.25),
+
+    6: Case("Zwavebreaker_Hgauss_Vsine", 0.25),
+    7: Case("Ztwowavebreakers_Hgauss_Vsine", 0.25),
 }
 
 def parse_cases(case_str: str) -> tuple[str, str, str]:
