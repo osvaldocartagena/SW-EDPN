@@ -38,7 +38,7 @@ def train_one_case(
 
     case = model.case
     outdir.mkdir(parents=True, exist_ok=True)
-    save_path = outdir / f"sw_pinn_ansatz_case_{case_id}_{case.name}.pt"
+    save_path = outdir / f"{case.name}.pt"
 
     print(f"\n=== case {case_id}: {case.name} | T={case.T} | device={DEVICE} ===")
     print("Ansatz: h,u = inicial + t*x*(1-x)*NN")
