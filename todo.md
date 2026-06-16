@@ -4,7 +4,7 @@ Lista priorizada de extensiones para el proyecto **Shallow Water + Wavebreaker**
 
 ---
 
-## 1. Diagrama espacio-tiempo (Hovmöller) 🎨
+## DONE 1. Diagrama espacio-tiempo (Hovmöller) 🎨
 
 **Esfuerzo:** ~30 min · **Valor:** Visualización muy informativa
 
@@ -22,7 +22,7 @@ Lista priorizada de extensiones para el proyecto **Shallow Water + Wavebreaker**
 
 ---
 
-## 2. Conservación de masa y energía 📐
+## DONE 2. Conservación de masa y energía 📐
 
 **Esfuerzo:** ~1 h · **Valor:** Diagnóstico crítico para PINN
 
@@ -154,8 +154,75 @@ variantes (weighted residuals, viscosidad artificial, dominio descomposición).
 
 ---
 
+## 7. Corregir pérdida de masa en presencia de wavebreaker 🩹
+
+**Esfuerzo:** ~3-5 h · **Valor:** Problema crítico identificado empíricamente
+
+**Observación empírica:**
+Al añadir la conservación de masa/energía a los plots, descubrimos que:
+
+| Caso                        | Pérdida `M` en `T` | Pérdida `E` en `T` |
+| --------------------------- | ------------------ | ------------------ |
+| 0 (flat, sin onda)          | ~5×10⁻⁷            | ~5×10⁻⁷            |
+| 6 (wavebreaker + Vsine 0.8) | ~5 %               | ~14 %              |
+
+La pérdida de **energía** es físicamente esperable (disipación por proto-shock),
+pero la pérdida de **5 % de masa** es **no física**: en SW con BC fijos y sin fuentes
+la masa debe conservarse exactamente.
+
+**Hipótesis:**
+El término `g · h · z_x` en el residual de momento es enorme cerca de los flancos
+del wavebreaker (`k = 100`). Domina la loss y el PINN sacrifica continuidad
+para minimizar momento.
+
+**Intentos sugeridos (en orden de costo creciente):**
+
+1. **Pesos por término en la loss.**
+   Probar `loss = w_mass * L_mass + w_mom * L_mom + ...`
+   con `w_mass = 10` o usar normalización adaptativa (NTK weights, GradNorm).
+2. **Sampling con resampleo cerca de flancos.**
+   Más puntos de colocación donde `|z_x|` es grande (RAR — Residual Adaptive Refinement).
+3. **Reescalar `z` o `g` adimensionalmente.**
+   Mejor balance entre términos físicos.
+4. **Hard-constrain de masa.**
+   Reescribir el ansatz de `h` para garantizar `∫ h dx = const` exactamente
+   (proyección sobre la variedad de masa constante). Más invasivo pero garantizado.
+5. **Combinar con curriculum sobre `k`** (TODO §4): empezar con `k` bajo,
+   donde los gradientes son manejables, y subir progresivamente.
+
+**Métrica de éxito:**
+Bajar `|M(t)/M(0) - 1|` de ~5 % a < 0.5 % en el caso 6 sin sacrificar
+calidad cualitativa de `h(x, t)` y `u(x, t)`.
+
+---
+
+### 7.b Plan B — si no se logra: narrativa de limitaciones del método ✍️
+
+Si después de intentar 7.1-7.5 la pérdida de masa **persiste**, convertirlo en
+**un resultado central** de la presentación, no en un fracaso:
+
+- **Identificar y cuantificar** el régimen en que el PINN vanilla falla
+  (topografía con `|z_x|` grande, shocks, alta no linealidad).
+- **Diagnosticar** mediante el residual y el mapa de error `|M/M₀ - 1|(t)`
+  qué término de la PDE se está sacrificando.
+- **Comparar** con la literatura: este es un problema conocido (PINNs y
+  ecuaciones hiperbólicas con discontinuidades / fondos rugosos).
+- **Proponer caminos futuros**: well-balanced schemes, conservative PINNs,
+  weak-form PINNs, hybrid solver + PINN, etc.
+
+**Mensaje de la presentación:**
+_"El PINN vanilla captura cualitativamente la física (shoaling, reflexión,
+proto-shocks) pero degrada la conservación en regímenes exigentes.
+Esto identifica el siguiente paso metodológico necesario, y conecta nuestro
+trabajo con la literatura activa de PINNs para ecuaciones hiperbólicas."_
+
+Esto **no es un retroceso**: es honestidad científica + identificación clara
+del valor agregado de futuras iteraciones del método.
+
+---
+
 ## Orden recomendado
 
-1 → 2 → 5 → 6 → 3 → 4
+1 → 2 → 5 → 6 → 7 → 3 → 4
 
-(rápido/visual → diagnósticos → física no lineal → métricas formales → metodología)
+(rápido/visual → diagnósticos → física no lineal → diagnóstico crítico → métricas formales → metodología)
