@@ -23,7 +23,7 @@ def parse_cases(case_str: str) -> tuple[str, str, str]:
     z_case, h_case, v_case = case_str.split("_")
 
     z_case = z_case[1:]  # "Zflat" -> "flat"
-    h_case = h_case[1:]   # "Hsine" -> "sine
-    v_case = v_case[1:]   # "Vsine" -> "sine
+    h_case = h_case[1:]  # "Hsine" -> "sine"
+    v_case = v_case[1:]  # "Vsine" -> "sine"
 
     return z_case, h_case, v_case

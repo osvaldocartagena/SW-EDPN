@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 
 from model.mlp import MLP
-from utils import CASES, parse_cases, get_topography, get_height, get_velocity
+from utils import CASES, parse_cases, get_topography, get_free_surface, get_velocity
 
 
 class SW_PINN(nn.Module):
@@ -29,10 +29,13 @@ class SW_PINN(nn.Module):
 
 
 def initial_condition(x: torch.Tensor, z_case: str, h_case: str, v_case: str) -> tuple[torch.Tensor, torch.Tensor]:
-    h0 = get_height(x, h_case)
+    # Convención: η = h + z, donde η es la superficie libre, h la profundidad
+    # y z la elevación del fondo. get_free_surface devuelve η(x, t=0), así que
+    # la profundidad inicial se obtiene como h0 = η0 - z.
+    eta0 = get_free_surface(x, h_case)
     u0 = get_velocity(x, v_case)
     z = get_topography(x, z_case)
 
-    eta = h0 - z
+    h0 = eta0 - z
 
-    return eta, u0
+    return h0, u0
