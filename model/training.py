@@ -41,7 +41,7 @@ def train_one_case(
     save_path = outdir / f"{case.name}.pt"
 
     print(f"\n=== case {case_id}: {case.name} | T={case.T} | device={DEVICE} ===")
-    print("Ansatz: h,u = inicial + t*x*(1-x)*NN")
+    print("Ansatz: h = inicial + t*NN_1 ; u = inicial + t*x*(1-x)*NN_2")
     print("IC y borde Dirichlet fijo son exactos por construccion.")
 
     history: list[dict[str, float]] = []
@@ -161,9 +161,7 @@ def check_hard_constraints(model: SW_PINN, n: int = 256) -> tuple[float, float]:
     h0r, u0r = initial_condition(xr, model.z_case, model.h_case, model.v_case)
 
     bc_err = (
-        ((hl - h0l) ** 2).mean()
         + ((ul - u0l) ** 2).mean()
-        + ((hr - h0r) ** 2).mean()
         + ((ur - u0r) ** 2).mean()
     )
 

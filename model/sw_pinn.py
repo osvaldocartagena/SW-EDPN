@@ -20,10 +20,11 @@ class SW_PINN(nn.Module):
         nn_h = raw[:, 0:1]
         nn_u = raw[:, 1:2]
 
-        envelope = t * x * (1.0 - x)
+        envelope_h = t
+        envelope_u = t * x * (1.0 - x)    
 
-        h = h0 + envelope * nn_h
-        u = u0 + envelope * nn_u
+        h = h0 + envelope_h * nn_h
+        u = u0 + envelope_u * nn_u
 
         return h, u
 
