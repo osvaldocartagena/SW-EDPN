@@ -7,17 +7,20 @@ class Case:
 
 CASES = {
     0: Case("Zflat_Hone_Vzero", 0.20),
-    1: Case("Zflat_Hgauss_Vzero", 0.20),
-    2: Case("Zflat_Hsine_Vzero", 0.20),
+    1: Case("Zflat_Hgauss_Vzero", 0.40),
+    2: Case("Zflat_Hgauss0_Vzero", 0.40),
+    3: Case("Zflat_Hsine_Vzero", 0.20),
 
-    3: Case("Zinclined_Hone_Vzero", 0.20),
-    4: Case("Zinclined_Hgauss_Vzero", 0.20),
+    4: Case("Zinclined_Hone_Vzero", 0.20),
+    5: Case("Zinclined_Hgauss_Vzero", 0.20),
 
-    5: Case("Zflat_Hgauss_Vgauss", 0.25),
-    6: Case("Zwavebreaker_Hgauss_Vzero", 0.25),
+    6: Case("Zflat_Hgauss_Vgauss", 0.25),
 
-    7: Case("Zwavebreaker_Hgauss_Vsine", 0.25),
-    8: Case("Ztwowavebreakers_Hgauss_Vsine", 0.25),
+    7: Case("Zwavebreaker_Hgauss_Vzero", 0.4),
+    8: Case("Zwavebreaker_Hgauss0_Vzero", 0.4),
+
+    9: Case("Zwavebreaker_Hgauss_Vsine", 0.25),
+    10: Case("Ztwowavebreakers_Hgauss_Vsine", 0.25),
 }
 
 def parse_cases(case_str: str) -> tuple[str, str, str]:
