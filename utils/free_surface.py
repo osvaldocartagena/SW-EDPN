@@ -25,7 +25,7 @@ def gauss_free_surface(x: torch.Tensor) -> torch.Tensor:
 
 
 def sine_free_surface(x: torch.Tensor) -> torch.Tensor:
-    return 1.0 + 0.05 * torch.sin(torch.pi * x)
+    return 1.0 + 0.2 * torch.sin(torch.pi * x)
 
 
 def one_free_surface(x: torch.Tensor) -> torch.Tensor:
