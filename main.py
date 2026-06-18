@@ -46,36 +46,30 @@ def main():
     parser.add_argument("--outdir", type=str, default="media-out")
     parser.add_argument("--no-plots", action="store_true")
     parser.add_argument("--T", type=float, default=None, help="Simulation time horizon")
-    parser.add_argument("--animate", action="store_true", help="Generate an animated gif of the solution")
+    parser.add_argument("--animate", action=argparse.BooleanOptionalAction,
+                        default=True,
+                        help="Generar gif animado de la solucion (default True). Usar --no-animate para desactivar.")
     args = parser.parse_args()
 
-    outdir = Path(args.outdir)
+    base_outdir = Path(args.outdir)
 
     if args.train_all:
-        for case_id in CASES:
-            train_one_case(
-                case_id=case_id,
-                steps=args.steps,
-                lr=args.lr,
-                n_int=args.n_int,
-                width=args.width,
-                depth=args.depth,
-                positivity_weight=args.positivity_weight,
-                outdir=outdir,
-                make_plot_files=not args.no_plots,
-                simulation_T=args.T,
-                animate=args.animate,
-            )
+        case_ids = list(CASES.keys())
     else:
+        case_ids = [args.case]
+
+    for case_id in case_ids:
+        case = CASES[case_id]
+        case_outdir = base_outdir / case.name
         train_one_case(
-            case_id=args.case,
+            case_id=case_id,
             steps=args.steps,
             lr=args.lr,
             n_int=args.n_int,
             width=args.width,
             depth=args.depth,
             positivity_weight=args.positivity_weight,
-            outdir=outdir,
+            outdir=case_outdir,
             make_plot_files=not args.no_plots,
             simulation_T=args.T,
             animate=args.animate,
