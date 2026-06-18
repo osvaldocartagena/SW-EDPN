@@ -97,17 +97,20 @@ def plot_solution_hovmoller(model: SW_PINN, outdir: Path) -> Path:
     t = tt.reshape(-1, 1)
 
     with torch.no_grad():
+        z = get_topography(x_line.reshape(-1, 1), model.z_case).cpu().numpy().ravel()
         h, u = model(x, t)
         h_map = h.reshape(nt, nx).cpu().numpy()
         u_map = u.reshape(nt, nx).cpu().numpy()
+        eta_map = h_map + z[None, :]
 
     extent = [0.0, 1.0, 0.0, case.T]
     fields = [
         ("h(x,t)", h_map, "viridis"),
-        ("u(x,t)", u_map, "coolwarm")
+        ("u(x,t)", u_map, "coolwarm"),
+        ("eta(x,t)", eta_map, "plasma"),
     ]
 
-    fig, axes = plt.subplots(1, 2, figsize=(12.0, 3.6), layout="constrained")
+    fig, axes = plt.subplots(1, 3, figsize=(17.0, 3.6), layout="constrained")
     for ax, (title, data, cmap) in zip(axes, fields, strict=True):
         im = ax.imshow(data, origin="lower", aspect="auto", extent=extent, cmap=cmap)
         ax.set_title(title)
