@@ -14,6 +14,8 @@ def get_free_surface(x: torch.Tensor, h_case: str) -> torch.Tensor:
             return sine_free_surface(x)
         case "gauss":
             return gauss_free_surface(x)
+        case "gauss0":
+            return gauss0_free_surface(x)
         case "one":
             return one_free_surface(x)
         case _:
@@ -23,6 +25,8 @@ def get_free_surface(x: torch.Tensor, h_case: str) -> torch.Tensor:
 def gauss_free_surface(x: torch.Tensor) -> torch.Tensor:
     return 1.0 + 0.2 * torch.exp(-120.0 * (x - 0.2) ** 2)
 
+def gauss0_free_surface(x: torch.Tensor) -> torch.Tensor:
+    return 1.0 + 0.2 * torch.exp(-120.0 * (x) ** 2)
 
 def sine_free_surface(x: torch.Tensor) -> torch.Tensor:
     return 1.0 + 0.2 * torch.sin(torch.pi * x)
