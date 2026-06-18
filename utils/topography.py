@@ -21,7 +21,7 @@ def two_wavebreakers_topography(x: torch.Tensor) -> torch.Tensor:
 def wavebreaker_topography(x: torch.Tensor,     
     a = 0.4,
     b = 0.6,
-    H = 0.8,
+    H = 0.9,
     k = 100.0) -> torch.Tensor:
 
     return (H/2) * (torch.tanh(k * (x - a)) - torch.tanh(k * (x - b)))
