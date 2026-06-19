@@ -12,8 +12,9 @@ class Case:
 CASES = {
     0: Case("Zflat_Sone_V0zero",         1.0),
     1: Case("Zflat_Sgauss_V0zero",       1.0),
-    2: Case("Zwavebreaker_Sgauss_V0zero", 1.0),
-    3: Case("Zwavebreaker_Sgauss0_V0zero", 0.4),
+    2: Case("Zflat_Sgauss0_V0zero", 1.0),
+    3: Case("Zwavebreaker_Sgauss0_V0zero", 1.0),
+    4: Case("Zwavebreaker_Sgauss0_V0zero", 0.4),
 }
 
 # Prefijos del string del caso. Cualquier nombre nuevo debe respetarlos.
