@@ -5,29 +5,47 @@ class Case:
     name: str
     T: float
 
+# Nomenclatura del string del caso:
+#   Z<topografia>_S<superficie>_V0<velocidad-inicial>
+# Ejemplos: "Zflat_Sone_V0zero", "Zwavebreaker_Sgauss_V0zero".
+# Los parametros se extraen via parse_cases().
 CASES = {
-    0: Case("Zflat_Hone_Vzero", 0.20),
-    1: Case("Zflat_Hgauss_Vzero", 0.40),
-    2: Case("Zflat_Hgauss0_Vzero", 0.40),
-    3: Case("Zflat_Hsine_Vzero", 0.20),
-
-    4: Case("Zinclined_Hone_Vzero", 0.20),
-    5: Case("Zinclined_Hgauss_Vzero", 0.20),
-
-    6: Case("Zflat_Hgauss_Vgauss", 0.25),
-
-    7: Case("Zwavebreaker_Hgauss_Vzero", 0.4),
-    8: Case("Zwavebreaker_Hgauss0_Vzero", 0.4),
-
-    9: Case("Zwavebreaker_Hgauss_Vsine", 0.25),
-    10: Case("Ztwowavebreakers_Hgauss_Vsine", 0.25),
+    0: Case("Zflat_Sone_V0zero",         1.0),
+    1: Case("Zflat_Sgauss_V0zero",       1.0),
+    2: Case("Zflat_Sgauss0_V0zero", 1.0),
+    3: Case("Zwavebreaker_Sgauss0_V0zero", 1.0),
+    4: Case("Zwavebreaker_Sgauss0_V0zero", 0.4),
 }
 
+# Prefijos del string del caso. Cualquier nombre nuevo debe respetarlos.
+_PREFIXES = {"z": "Z", "s": "S", "v0": "V0"}
+
+
 def parse_cases(case_str: str) -> tuple[str, str, str]:
-    z_case, h_case, v_case = case_str.split("_")
+    """Extrae (z_case, s_case, v0_case) del nombre estandar.
 
-    z_case = z_case[1:]  # "Zflat" -> "flat"
-    h_case = h_case[1:]  # "Hsine" -> "sine"
-    v_case = v_case[1:]  # "Vsine" -> "sine"
+    Ejemplo: "Zflat_Sgauss_V0zero" -> ("flat", "gauss", "zero").
+    """
+    parts = case_str.split("_")
+    if len(parts) != 3:
+        raise ValueError(
+            f"Nombre de caso invalido '{case_str}': se esperan 3 partes "
+            f"separadas por '_' con prefijos Z/S/V0."
+        )
+    z_part, s_part, v0_part = parts
 
-    return z_case, h_case, v_case
+    for label, part, prefix in (
+        ("z", z_part, _PREFIXES["z"]),
+        ("s", s_part, _PREFIXES["s"]),
+        ("v0", v0_part, _PREFIXES["v0"]),
+    ):
+        if not part.startswith(prefix):
+            raise ValueError(
+                f"Parte '{label}' = '{part}' no empieza con prefijo '{prefix}'."
+            )
+
+    return (
+        z_part[len(_PREFIXES["z"]):],
+        s_part[len(_PREFIXES["s"]):],
+        v0_part[len(_PREFIXES["v0"]):],
+    )
