@@ -6,12 +6,11 @@ import torch
 import torch.nn.functional as F
 
 from config import DEVICE, DTYPE
-from utils import Case, CASES, get_topography
+from utils import Case, get_topography
 from model.sw_pinn import SW_PINN, initial_condition
 from utils.plot import make_plots
 
-g = 9.81
-
+G = 9.81
 
 def train_one_case(
     case_id: int,
@@ -106,7 +105,7 @@ def pde_residuals(model: SW_PINN, x: torch.Tensor, t: torch.Tensor) -> tuple[tor
     h, u = model(x, t)
 
     q = h * u
-    flux = h * u**2 + 0.5 * g * h**2
+    flux = h * u**2 + 0.5 * G * h**2
 
     # h_t + (hu)_x = 0
     r_mass = grad(h, t) + grad(q, x)
@@ -115,7 +114,7 @@ def pde_residuals(model: SW_PINN, x: torch.Tensor, t: torch.Tensor) -> tuple[tor
     z = get_topography(x, model.z_case)
     z_x = grad(z, x)
 
-    r_mom = grad(q, t) + grad(flux, x) + g * h * z_x
+    r_mom = grad(q, t) + grad(flux, x) + G * h * z_x
 
     return r_mass, r_mom, h
 
@@ -146,7 +145,7 @@ def check_hard_constraints(model: SW_PINN, n: int = 256) -> tuple[float, float]:
     t0 = torch.zeros_like(x)
 
     h, u = model(x, t0)
-    h0, u0 = initial_condition(x, model.z_case, model.h_case, model.v_case)
+    h0, u0 = initial_condition(x, model.z_case, model.s0_case, model.v0_case)
 
     ic_err = ((h - h0) ** 2).mean() + ((u - u0) ** 2).mean()
 
@@ -157,8 +156,8 @@ def check_hard_constraints(model: SW_PINN, n: int = 256) -> tuple[float, float]:
     hl, ul = model(xl, tb)
     hr, ur = model(xr, tb)
 
-    h0l, u0l = initial_condition(xl, model.z_case, model.h_case, model.v_case)
-    h0r, u0r = initial_condition(xr, model.z_case, model.h_case, model.v_case)
+    h0l, u0l = initial_condition(xl, model.z_case, model.s0_case, model.v0_case)
+    h0r, u0r = initial_condition(xr, model.z_case, model.s0_case, model.v0_case)
 
     bc_err = (
         + ((ul - u0l) ** 2).mean()

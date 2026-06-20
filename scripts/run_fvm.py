@@ -13,7 +13,7 @@ from __future__ import annotations
 import argparse
 from pathlib import Path
 
-from utils import CASES, parse_cases
+from utils import CASES, parse_cases, display_label
 from fvm import SimConfig, simulate
 from fvm.plot import make_plots
 
@@ -23,14 +23,14 @@ def run_one(
     N: int,
     cfl: float,
     n_snapshots: int,
-    v_case: str,
+    v0_case: str,
     bc: str,
     base_outdir: Path,
     animate: bool,
     simulation_T: float | None,
 ) -> None:
     case = CASES[case_id]
-    z_case, s_case, v0_case = parse_cases(case.name)
+    z_case, s0_case, v0_case = parse_cases(case.name)
 
     cfg = SimConfig(
         T=case.T if simulation_T is None else simulation_T,
@@ -38,15 +38,15 @@ def run_one(
         cfl=cfl,
         n_snapshots=n_snapshots,
         z_case=z_case,
-        s_case=s_case,
+        s0_case=s0_case,
         v0_case=v0_case,
-        v_case=v_case,
+        v0_case=v0_case,
         bc=bc,
     )
-    label = f"case {case_id}: {case.name}"
+    label = display_label(case.name)
     print(
-        f"\n=== {label} | T={cfg.T} | N={cfg.N} | "
-        f"z={cfg.z_case} s={cfg.s_case} v0={cfg.v0_case} v={cfg.v_case} bc={cfg.bc} ==="
+        f"\n=== {label} (case {case_id}) | T={cfg.T} | N={cfg.N} | "
+        f"z={cfg.z_case} s={cfg.s0_case} v0={cfg.v0_case} v={cfg.v0_case} bc={cfg.bc} ==="
     )
 
     res = simulate(cfg)
@@ -89,7 +89,7 @@ def main() -> None:
             N=args.N,
             cfl=args.cfl,
             n_snapshots=args.snapshots,
-            v_case=args.v,
+            v0_case=args.v,
             bc=args.bc,
             base_outdir=args.outdir,
             animate=args.animate,

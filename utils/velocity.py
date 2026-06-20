@@ -1,7 +1,7 @@
 import torch
 
-def get_velocity(x: torch.Tensor, v_case: str) -> torch.Tensor:
-    match v_case:
+def get_velocity(x: torch.Tensor, v0_case: str) -> torch.Tensor:
+    match v0_case:
         case "sine":
             return sine_velocity(x)
         case "gauss":
@@ -9,7 +9,7 @@ def get_velocity(x: torch.Tensor, v_case: str) -> torch.Tensor:
         case "zero":
             return null_velocity(x)
         case _:
-            raise ValueError(f"Velocidad inicial inválida: {v_case}")
+            raise ValueError(f"Velocidad inicial inválida: {v0_case}")
 
 def sine_velocity(x: torch.Tensor) -> torch.Tensor:
     return 1.2 * torch.sin(torch.pi * x)

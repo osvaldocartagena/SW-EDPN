@@ -1,5 +1,5 @@
 # cases.py es puro stdlib y lo necesita tanto el PINN como el FVM.
-from .cases import Case, CASES, parse_cases
+from .cases import Case, CASES, parse_cases, display_label
 
 # Los modulos siguientes dependen de torch (PINN). El FVM (que solo usa numpy)
 # no los necesita; los hacemos opcionales para poder correr scripts/run_fvm.py

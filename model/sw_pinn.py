@@ -10,11 +10,11 @@ class SW_PINN(nn.Module):
         super().__init__()
         self.case_id = case_id
         self.case = CASES[case_id]
-        self.z_case, self.h_case, self.v_case = parse_cases(self.case.name)
+        self.z_case, self.s0_case, self.v0_case = parse_cases(self.case.name)
         self.net = MLP(width=width, depth=depth)
 
     def forward(self, x: torch.Tensor, t: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
-        h0, u0 = initial_condition(x, self.z_case, self.h_case, self.v_case)
+        h0, u0 = initial_condition(x, self.z_case, self.s0_case, self.v0_case)
 
         raw = self.net(x, t / self.case.T)
         nn_h = raw[:, 0:1]
@@ -29,12 +29,12 @@ class SW_PINN(nn.Module):
         return h, u
 
 
-def initial_condition(x: torch.Tensor, z_case: str, h_case: str, v_case: str) -> tuple[torch.Tensor, torch.Tensor]:
+def initial_condition(x: torch.Tensor, z_case: str, s0_case: str, v0_case: str) -> tuple[torch.Tensor, torch.Tensor]:
     # Convención: η = h + z, donde η es la superficie libre, h la profundidad
     # y z la elevación del fondo. get_free_surface devuelve η(x, t=0), así que
     # la profundidad inicial se obtiene como h0 = η0 - z.
-    eta0 = get_free_surface(x, h_case)
-    u0 = get_velocity(x, v_case)
+    eta0 = get_free_surface(x, s0_case)
+    u0 = get_velocity(x, v0_case)
     z = get_topography(x, z_case)
 
     h0 = eta0 - z
