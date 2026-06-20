@@ -11,10 +11,11 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 import matplotlib.animation as animation
+import numpy as np
 import torch
 
 from config import DEVICE, DTYPE
-from utils.cases import Case
+from utils.cases import Case, display_label
 from utils.topography import get_topography
 from utils.domain import get_x, get_t
 from utils.conservation import get_mass, get_energy
@@ -30,12 +31,11 @@ def plot_training_history(history: list[dict[str, float]], case: Case, case_id: 
     for key in ("loss", "mass", "mom", "pos"):
         ax.semilogy(its, [row[key] for row in history], label=key)
 
-    ax.set_title(f"case {case_id}: {case.name}")
+    ax.set_title(display_label(case.name))
     ax.set_xlabel("iteration")
     ax.set_ylabel("loss")
     ax.grid(True, which="both", alpha=0.25)
     ax.legend()
-
     fig.savefig(fig_path, dpi=180)
     plt.close(fig)
     return fig_path
@@ -77,7 +77,7 @@ def plot_solution_snapshots(model: SW_PINN, outdir: Path) -> Path:
         ax.grid(True, alpha=0.25)
         ax.legend(ncols=3, fontsize=8)
 
-    fig.suptitle(f"case {model.case_id}: {case.name}")
+    fig.suptitle(display_label(case.name))
     fig.savefig(fig_path, dpi=180)
     plt.close(fig)
     return fig_path
@@ -112,13 +112,22 @@ def plot_solution_hovmoller(model: SW_PINN, outdir: Path) -> Path:
 
     fig, axes = plt.subplots(1, 3, figsize=(17.0, 3.6), layout="constrained")
     for ax, (title, data, cmap) in zip(axes, fields, strict=True):
-        im = ax.imshow(data, origin="lower", aspect="auto", extent=extent, cmap=cmap)
+        # u centrada en cero (cmap diverging) para que el blanco caiga en 0
+        if cmap == "coolwarm":
+            vmax_abs = float(np.abs(data).max()) or 1.0
+            im = ax.imshow(
+                data, origin="lower", aspect="auto", extent=extent,
+                cmap=cmap, vmin=-vmax_abs, vmax=vmax_abs,
+            )
+        else:
+            im = ax.imshow(data, origin="lower", aspect="auto", extent=extent, cmap=cmap)
         ax.set_title(title)
         ax.set_xlabel("x")
         ax.set_ylabel("t")
+        ax.set_yticks([0.0, case.T])
         fig.colorbar(im, ax=ax, shrink=0.85)
 
-    fig.suptitle(f"case {model.case_id}: {case.name}")
+    fig.suptitle(display_label(case.name))
     fig.savefig(fig_path, dpi=180)
     plt.close(fig)
     return fig_path
@@ -160,7 +169,7 @@ def create_animation(model: SW_PINN, outdir: Path, frames: int = 50) -> Path:
             
     line_h, = axes[0].plot([], [], label="h", color="C0")
     line_u, = axes[1].plot([], [], label="u", color="C1")
-    line_eta, = axes[2].plot([], [], label="eta = h + z", color="C2")
+    line_eta, = axes[2].plot([], [], label="eta = h + z", color="C0")
     axes[2].plot(x_np, z, "k--", linewidth=1.0, label="z")
 
     axes[0].set_ylabel("h")
@@ -189,7 +198,7 @@ def create_animation(model: SW_PINN, outdir: Path, frames: int = 50) -> Path:
         line_h.set_data(x_np, h_all[frame_idx])
         line_u.set_data(x_np, u_all[frame_idx])
         line_eta.set_data(x_np, eta_all[frame_idx])
-        title.set_text(f"case {model.case_id}: {case.name} | t={times[frame_idx].item():.3f}")
+        title.set_text(f"{display_label(case.name)} | t={times[frame_idx].item():.3f}")
         return line_h, line_u, line_eta, title
 
     ani = animation.FuncAnimation(fig, update, frames=frames, init_func=init, blit=True)
@@ -250,7 +259,6 @@ def plot_conservation(model: SW_PINN, outdir: Path) -> Path:
     ax_left.axhline(1.0, color="k", linestyle="--", linewidth=0.8, alpha=0.5)
     ax_left.set_ylim(0.0, 1.1)
     ax_left.set_xlabel("t")
-    ax_left.set_ylabel("valor normalizado")
     ax_left.set_title("conservaci\u00f3n")
     ax_left.grid(True, alpha=0.25)
     ax_left.legend(loc="lower right")
@@ -258,34 +266,45 @@ def plot_conservation(model: SW_PINN, outdir: Path) -> Path:
     ax_right.semilogy(ts, M_dev, "-", color="C0", label="|M(t)/M(0) - 1|")
     ax_right.semilogy(ts, E_dev, "-", color="C3", label="|E(t)/E(0) - 1|")
     ax_right.set_xlabel("t")
-    ax_right.set_ylabel("desviaci\u00f3n relativa")
     ax_right.set_title("error de conservaci\u00f3n")
     ax_right.grid(True, which="both", alpha=0.25)
     ax_right.legend(loc="best")
 
-    fig.suptitle(f"case {model.case_id}: {case.name}")
+    fig.suptitle(display_label(case.name))
     fig.savefig(fig_path, dpi=180)
     plt.close(fig)
     return fig_path
 
-def plot_topography(z_case: str, outdir: Path) -> Path:
-    print(f"Plotting topography {z_case}")
+def plot_initial_state(z_case: str, s0_case: str, outdir: Path) -> Path:
+    """Plotea la topografia z(x) y la superficie libre eta(x, t=0).
 
-    fig_path = outdir / f"topography_{z_case}.png"
+    Mismo estilo que el panel eta de los snapshots: z como linea punteada
+    negra y eta como linea azul. Sin sombreado.
+    """
+    from utils.free_surface import get_free_surface
+
+    print(f"Plotting initial state Z{z_case}_S0{s0_case}")
+
+    fig_path = outdir / f"initial_Z{z_case}_S0{s0_case}.png"
 
     x = get_x()
 
-    fig, ax = plt.subplots(figsize=(8.0, 8.0), sharex=True, layout="constrained")
+    fig, ax = plt.subplots(figsize=(8.0, 5.0), layout="constrained")
 
     with torch.no_grad():
         z = get_topography(x, z_case).cpu().numpy().ravel()
+        eta0 = get_free_surface(x, s0_case).cpu().numpy().ravel()
         x_np = x.cpu().numpy().ravel()
-        ax.plot(x_np, z, "k--", linewidth=1.0, label="z")
 
-    ax.set_ylabel("eta = h + z")
+    ax.plot(x_np, z, "k--", linewidth=1.0, label="z(x)")
+    ax.plot(x_np, eta0, color="C0", linewidth=1.5, label="eta(x, t=0) = h0 + z")
+
     ax.set_xlabel("x")
+    ax.set_ylabel("altura")
+    ax.grid(True, alpha=0.25)
+    ax.legend(loc="best")
 
-    fig.suptitle(f"z_case: {z_case}")
+    fig.suptitle(f"Z{z_case}_S0{s0_case}")
     fig.savefig(fig_path, dpi=180)
     plt.close(fig)
 
