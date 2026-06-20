@@ -76,6 +76,10 @@ def plot_solution_snapshots(model: SW_PINN, outdir: Path) -> Path:
     for ax in axes:
         ax.grid(True, alpha=0.25)
         ax.legend(ncols=3, fontsize=8)
+        # Evita la notacion con "offset" (1e-6 + 9.9999e-1) en casos triviales
+        # como lago en reposo, donde h ~ 1 con ruido O(1e-6). Mostramos los
+        # numeros absolutos (0.999998, 1.000000, ...) para que sea legible.
+        ax.ticklabel_format(axis="y", useOffset=False)
 
     fig.suptitle(display_label(case.name))
     fig.savefig(fig_path, dpi=180)
@@ -125,7 +129,10 @@ def plot_solution_hovmoller(model: SW_PINN, outdir: Path) -> Path:
         ax.set_xlabel("x")
         ax.set_ylabel("t")
         ax.set_yticks([0.0, case.T])
-        fig.colorbar(im, ax=ax, shrink=0.85)
+        cbar = fig.colorbar(im, ax=ax, shrink=0.85)
+        # Sin offset en la colorbar (mismo motivo que en snapshots)
+        cbar.formatter.set_useOffset(False)
+        cbar.update_ticks()
 
     fig.suptitle(display_label(case.name))
     fig.savefig(fig_path, dpi=180)
