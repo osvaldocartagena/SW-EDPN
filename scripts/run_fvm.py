@@ -40,7 +40,6 @@ def run_one(
         z_case=z_case,
         s0_case=s0_case,
         v0_case=v0_case,
-        v0_case=v0_case,
         bc=bc,
     )
     label = display_label(case.name)
