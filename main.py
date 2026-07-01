@@ -1,27 +1,28 @@
 #!/usr/bin/env python3
 """
-PINN Shallow Water 1D con hard constraints simples:
+PINN for 1D Shallow Water with hard constraints:
 
-    h(x,t) = h0(x) + t*x*(1-x)*NN_h(x,t)
-    u(x,t) = u0(x) + t*x*(1-x)*NN_u(x,t)
+    h(x,t) = h0(x) + t * NN_h(x,t)
+    u(x,t) = u0(x) + t*x*(1-x) * NN_u(x,t)
 
-Eso fuerza exactamente:
+This enforces exactly:
 
-    h(x,0) = h0(x)
-    u(x,0) = u0(x)
+    h(x,0) = h0(x)       (initial condition on h)
+    u(x,0) = u0(x)       (initial condition on u)
+    u(0,t) = u0(0) = 0   (wall BC for u, enforced by x*(1-x) factor)
+    u(1,t) = u0(1) = 0   (wall BC for u, enforced by x*(1-x) factor)
 
-y tambien fuerza borde Dirichlet fijo:
+Note: the Neumann (zero-gradient) BC for h at the walls is NOT enforced
+by construction. Implementing a hard Neumann constraint to match the FVM
+boundary treatment is planned as future work.
 
-    h(0,t) = h0(0),   u(0,t) = u0(0)
-    h(1,t) = h0(1),   u(1,t) = u0(1)
+The training loss is the PDE residual only.
+An optional soft penalty prevents unphysical h <= 0.
 
-La loss principal es solo el residual PDE.
-Hay una penalizacion opcional suave para evitar h <= 0.
-
-Uso:
+Usage:
     python main.py --case 0 --steps 20000
     python main.py --train-all --steps 12000
-    python main.py --animate 
+    python main.py --animate
 """
 
 from __future__ import annotations
@@ -48,7 +49,7 @@ def main():
     parser.add_argument("--T", type=float, default=None, help="Simulation time horizon")
     parser.add_argument("--animate", action=argparse.BooleanOptionalAction,
                         default=True,
-                        help="Generar gif animado de la solucion (default True). Usar --no-animate para desactivar.")
+                        help="Generate animated GIF of the solution (default True). Use --no-animate to skip.")
     args = parser.parse_args()
 
     base_outdir = Path(args.outdir)
