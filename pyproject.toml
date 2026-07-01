@@ -1,12 +1,11 @@
 [project]
 name = "sw-pinn"
 version = "0.1.0"
-description = "Add your description here"
+description = "Physics-Informed Neural Networks for 1D Shallow Water equations with wave breakers"
 requires-python = ">=3.12"
 dependencies = [
     "matplotlib>=3.10.9",
     "numpy>=2.4.4",
-    "pandas>=3.0.3",
     "torch>=2.11.0",
 ]
 
