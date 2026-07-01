@@ -66,8 +66,7 @@ The Neumann (zero-gradient) boundary condition for $h$ is not hard-constrained; 
 The training loss is the PDE residual only:
 
 $$
-\mathcal{L} = \left\| \partial_t h + \partial_x(hu) \right\|^2
-+ \left\| \partial_t(hu) + \partial_x\!\left(hu^2 + \tfrac{1}{2} g h^2\right) + g h\, \partial_x z \right\|^2
+\mathcal{L} = \left\| \partial_t h + \partial_x(hu) \right\|^2 + \left\| \partial_t(hu) + \partial_x\!\left(hu^2 + \tfrac{1}{2} g h^2\right) + g h\, \partial_x z \right\|^2
 $$
 
 plus an optional positivity penalty (weight 100) to discourage unphysical $h \le 0$.
