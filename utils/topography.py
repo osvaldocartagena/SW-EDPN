@@ -13,7 +13,7 @@ def get_topography(x: torch.Tensor, z_case: str) -> torch.Tensor:
         case "twowavebreakers":
             return two_wavebreakers_topography(x)
         case _:
-            raise ValueError(f"Topografía inválida: {z_case}")
+            raise ValueError(f"Unknown topography case: {z_case}")
         
 def two_wavebreakers_topography(x: torch.Tensor) -> torch.Tensor:
     return wavebreaker_topography(x, a=0.1, b=0.4) + wavebreaker_topography(x, a=0.6, b=0.9)
@@ -33,4 +33,4 @@ def inclined_topography(x: torch.Tensor) -> torch.Tensor:
     return 0.05 * x
 
 def flat_topography(x: torch.Tensor) -> torch.Tensor:
-    return 0.0 * x  # conserva el grafo para poder hacer grad(z,x)
+    return 0.0 * x  # keeps the graph alive for grad(z, x)

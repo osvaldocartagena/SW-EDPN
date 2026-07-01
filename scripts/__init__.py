@@ -1,1 +1,1 @@
-# scripts/ es un namespace
+# scripts/ namespace

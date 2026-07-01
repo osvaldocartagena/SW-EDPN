@@ -30,9 +30,9 @@ class SW_PINN(nn.Module):
 
 
 def initial_condition(x: torch.Tensor, z_case: str, s0_case: str, v0_case: str) -> tuple[torch.Tensor, torch.Tensor]:
-    # Convención: η = h + z, donde η es la superficie libre, h la profundidad
-    # y z la elevación del fondo. get_free_surface devuelve η(x, t=0), así que
-    # la profundidad inicial se obtiene como h0 = η0 - z.
+    # Convention: η = h + z, where η is the free surface, h the water depth,
+    # and z the bottom elevation. get_free_surface returns η(x, t=0), so the
+    # initial depth is h0 = η0 - z.
     eta0 = get_free_surface(x, s0_case)
     u0 = get_velocity(x, v0_case)
     z = get_topography(x, z_case)

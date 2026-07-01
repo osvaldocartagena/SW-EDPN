@@ -79,7 +79,7 @@ def plot_solution_snapshots(model: SW_PINN, outdir: Path) -> Path:
         # Evita la notacion con "offset" (1e-6 + 9.9999e-1) en casos triviales
         # como lago en reposo, donde h ~ 1 con ruido O(1e-6). Mostramos los
         # numeros absolutos (0.999998, 1.000000, ...) para que sea legible.
-        ax.ticklabel_format(axis="y", useOffset=False)
+        ax.ticklabel_format(axis="y", useOffset=False)  # avoid "1e-6 + 9.9999e-1" style offsets
 
     fig.suptitle(display_label(case.name))
     fig.savefig(fig_path, dpi=180)
@@ -116,7 +116,7 @@ def plot_solution_hovmoller(model: SW_PINN, outdir: Path) -> Path:
 
     fig, axes = plt.subplots(1, 3, figsize=(17.0, 3.6), layout="constrained")
     for ax, (title, data, cmap) in zip(axes, fields, strict=True):
-        # u centrada en cero (cmap diverging) para que el blanco caiga en 0
+        # u centred at zero so white falls on 0 in the diverging colourmap
         if cmap == "coolwarm":
             vmax_abs = float(np.abs(data).max()) or 1.0
             im = ax.imshow(
@@ -131,7 +131,7 @@ def plot_solution_hovmoller(model: SW_PINN, outdir: Path) -> Path:
         ax.set_yticks([0.0, case.T])
         cbar = fig.colorbar(im, ax=ax, shrink=0.85)
         # Sin offset en la colorbar (mismo motivo que en snapshots)
-        cbar.formatter.set_useOffset(False)
+        cbar.formatter.set_useOffset(False)  # avoid offset notation on colourbar
         cbar.update_ticks()
 
     fig.suptitle(display_label(case.name))
@@ -244,10 +244,10 @@ def _conservation_series(model: SW_PINN) -> tuple[list[float], list[float], list
 
 
 def plot_conservation(model: SW_PINN, outdir: Path) -> Path:
-    """
-    Dos paneles lado a lado:
-      - Izquierda: M(t)/M(0) y E(t)/E(0) con eje fijo en 1.0 ("se conserva").
-      - Derecha:   |M(t)/M(0) - 1| y |E(t)/E(0) - 1| en escala log ("cuánto se desvía").
+    """Two-panel conservation plot.
+
+    Left:  M(t)/M(0) and E(t)/E(0) — should stay at 1.
+    Right: |M(t)/M(0) - 1| and |E(t)/E(0) - 1| in log scale — deviation from conservation.
     """
     case = model.case
     fig_path = outdir / f"{case.name}_conservation.png"
@@ -266,14 +266,14 @@ def plot_conservation(model: SW_PINN, outdir: Path) -> Path:
     ax_left.axhline(1.0, color="k", linestyle="--", linewidth=0.8, alpha=0.5)
     ax_left.set_ylim(0.0, 1.1)
     ax_left.set_xlabel("t")
-    ax_left.set_title("conservaci\u00f3n")
+    ax_left.set_title("conservation")
     ax_left.grid(True, alpha=0.25)
     ax_left.legend(loc="lower right")
 
     ax_right.semilogy(ts, M_dev, "-", color="C0", label="|M(t)/M(0) - 1|")
     ax_right.semilogy(ts, E_dev, "-", color="C3", label="|E(t)/E(0) - 1|")
     ax_right.set_xlabel("t")
-    ax_right.set_title("error de conservaci\u00f3n")
+    ax_right.set_title("conservation error")
     ax_right.grid(True, which="both", alpha=0.25)
     ax_right.legend(loc="best")
 
@@ -283,11 +283,7 @@ def plot_conservation(model: SW_PINN, outdir: Path) -> Path:
     return fig_path
 
 def plot_initial_state(z_case: str, s0_case: str, outdir: Path) -> Path:
-    """Plotea la topografia z(x) y la superficie libre eta(x, t=0).
-
-    Mismo estilo que el panel eta de los snapshots: z como linea punteada
-    negra y eta como linea azul. Sin sombreado.
-    """
+    """Plot the topography z(x) and the initial free surface η(x, t=0)."""
     from utils.free_surface import get_free_surface
 
     print(f"Plotting initial state Z{z_case}_S0{s0_case}")

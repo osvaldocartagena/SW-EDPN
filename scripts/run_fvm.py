@@ -1,9 +1,9 @@
-"""CLI: corre uno o varios casos del FVM y guarda graficos en media-out/{case_name}/.
+"""CLI: run one or all FVM cases and save plots to media-out/{case_name}/.
 
-Usa la misma fuente de verdad para los casos que el PINN (utils.cases.CASES) y
-parsea el nombre con utils.parse_cases.
+Uses the same case registry as the PINN (utils.cases.CASES) and parses
+case names with utils.parse_cases.
 
-Uso:
+Usage:
     python -m scripts.run_fvm --case 0
     python -m scripts.run_fvm --case all
     python -m scripts.run_fvm --case 2 --animate --N 800
@@ -45,7 +45,7 @@ def run_one(
     label = display_label(case.name)
     print(
         f"\n=== {label} (case {case_id}) | T={cfg.T} | N={cfg.N} | "
-        f"z={cfg.z_case} s={cfg.s0_case} v0={cfg.v0_case} v={cfg.v0_case} bc={cfg.bc} ==="
+        f"z={cfg.z_case} s0={cfg.s0_case} v0={cfg.v0_case} v={cfg.v_case} bc={cfg.bc} ==="
     )
 
     res = simulate(cfg)
@@ -68,17 +68,16 @@ def main() -> None:
     parser.add_argument("--snapshots", type=int, default=200)
     parser.add_argument("--v", type=str, default="zero",
                         choices=["zero", "constant", "sine", "triangular"],
-                        help="Forzamiento temporal h*v(t) (default zero)")
+                        help="Time-dependent body forcing h*v(t) (default zero)")
     parser.add_argument("--bc", type=str, default="reflective",
                         choices=["reflective", "neumann"])
-    parser.add_argument("--outdir", type=Path, default=Path("fvm/media-out"),
-                        help="Directorio base de salida (default fvm/media-out "
-                             "para evitar colisiones con los outputs del PINN)")
+    parser.add_argument("--outdir", type=Path, default=Path("media-out"),
+                        help="Output base directory (default: media-out)")
     parser.add_argument("--animate", action=argparse.BooleanOptionalAction,
                         default=True,
-                        help="Generar gif animado (default True). Usar --no-animate para desactivar.")
+                        help="Generate animated GIF (default True). Use --no-animate to skip.")
     parser.add_argument("--T", type=float, default=None,
-                        help="Override del T del caso")
+                        help="Override the case simulation time T")
     args = parser.parse_args()
 
     case_ids = list(CASES.keys()) if args.case == "all" else [int(args.case)]

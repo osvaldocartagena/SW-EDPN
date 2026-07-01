@@ -30,7 +30,7 @@ def train_one_case(
     model = SW_PINN(case_id=case_id, width=width, depth=depth).to(DEVICE)
     if simulation_T is not None:
         if simulation_T <= 0.0:
-            raise ValueError("--T debe ser mayor que 0")
+            raise ValueError("--T must be greater than 0")
         model.case = Case(model.case.name, simulation_T)
 
     opt = torch.optim.Adam(model.parameters(), lr=lr)
@@ -40,8 +40,8 @@ def train_one_case(
     save_path = outdir / f"{case.name}.pt"
 
     print(f"\n=== case {case_id}: {case.name} | T={case.T} | device={DEVICE} ===")
-    print("Ansatz: h = inicial + t*NN_1 ; u = inicial + t*x*(1-x)*NN_2")
-    print("IC y borde Dirichlet fijo son exactos por construccion.")
+    print("Ansatz: h = h0 + t*NN_h ; u = u0 + t*x*(1-x)*NN_u")
+    print("IC (h, u) and wall BC (u) are exact by construction.")
 
     history: list[dict[str, float]] = []
 
@@ -80,7 +80,7 @@ def train_one_case(
         save_path,
     )
 
-    print(f"guardado: {save_path}")
+    print(f"saved: {save_path}")
     if make_plot_files:
         for fig_path in make_plots(model, history, outdir, animate=animate):
             print(f"plot: {fig_path}")
@@ -125,7 +125,7 @@ def loss_fn(model: SW_PINN, x: torch.Tensor, t: torch.Tensor, positivity_weight:
     loss_mass = (r_mass**2).mean()
     loss_mom = (r_mom**2).mean()
 
-    # Opcional: evita soluciones no fisicas h <= 0 sin cambiar el ansatz pedido.
+    # Optional: prevents unphysical h <= 0 without modifying the ansatz.
     loss_pos = F.relu(1e-4 - h).pow(2).mean()
 
     loss = loss_mass + loss_mom + positivity_weight * loss_pos
